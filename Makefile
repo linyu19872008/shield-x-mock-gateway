@@ -1,5 +1,7 @@
 GO ?= go
 BIN ?= bin/mock-gateway
+VERSION ?= 0.1.1
+LDFLAGS ?= -X github.com/linyu19872008/shield-x-mock-gateway/internal/version.Version=$(VERSION)
 
 .PHONY: help build test vet conformance i18n-check docs-check clean
 
@@ -12,7 +14,7 @@ help:
 	@echo "make docs-check  检查文档相对链接和双语镜像"
 
 build:
-	$(GO) build -o $(BIN) ./cmd/mock-gateway
+	$(GO) build -ldflags "$(LDFLAGS)" -o $(BIN) ./cmd/mock-gateway
 
 test:
 	$(GO) test ./...
@@ -25,10 +27,10 @@ conformance:
 
 i18n-check:
 	python3 scripts/check-i18n.py
-	node --check cmd/mock-gateway/web/app.js
-	node --check cmd/mock-gateway/web/i18n.js
-	node --check cmd/mock-gateway/web/locales/en.js
-	node --check cmd/mock-gateway/web/locales/zh-CN.js
+	node --check internal/control/web/app.js
+	node --check internal/control/web/i18n.js
+	node --check internal/control/web/locales/en.js
+	node --check internal/control/web/locales/zh-CN.js
 
 docs-check:
 	python3 scripts/check-docs.py

@@ -1,17 +1,13 @@
-// mock-gateway 是 shield-x 的开发数据源、契约一致性测试客户端与压测发生器。
-//
-// 求值、模板渲染、流量生成由 mock 独立实现，保留「契约可被独立实施」的验证能力；
-// 与 shield-x 的所有 agent 交互（拉策略/模板、上报、spool 补发）统一经由
-// shield-x-client-go 的 agentlink 适配层，使 mock 同时成为 SDK 的 E2E 驱动。
+// mock-gateway is a standalone gateway simulator for the shield-x agent-v1 contract.
 package main
 
 import (
-	"flag"
 	"fmt"
 	"os"
-)
 
-var version = "0.1.1"
+	"github.com/linyu19872008/shield-x-mock-gateway/internal/cli"
+	"github.com/linyu19872008/shield-x-mock-gateway/internal/version"
+)
 
 func main() {
 	if len(os.Args) < 2 {
@@ -21,17 +17,17 @@ func main() {
 
 	switch os.Args[1] {
 	case "conformance":
-		os.Exit(cmdConformance(os.Args[2:]))
+		os.Exit(cli.Conformance(os.Args[2:]))
 	case "serve":
-		os.Exit(cmdServe(os.Args[2:]))
+		os.Exit(cli.Serve(os.Args[2:]))
 	case "run":
-		os.Exit(cmdRun(os.Args[2:]))
+		os.Exit(cli.Run(os.Args[2:]))
 	case "loadtest":
-		os.Exit(cmdLoadTest(os.Args[2:]))
+		os.Exit(cli.LoadTest(os.Args[2:]))
 	case "gateway":
-		os.Exit(cmdGateway(os.Args[2:]))
+		os.Exit(cli.Gateway(os.Args[2:]))
 	case "version":
-		fmt.Println(version)
+		fmt.Println(version.Version)
 	case "help", "-h", "--help":
 		usage()
 	default:
@@ -62,14 +58,4 @@ func usage() {
   mock-gateway run --config ./config.example.yaml
   mock-gateway loadtest --config ./config.yaml --rate 3000 --duration 10m
 `)
-}
-
-func cmdConformance(args []string) int {
-	fs := flag.NewFlagSet("conformance", flag.ContinueOnError)
-	vectors := fs.String("vectors", "./testdata/template-conformance/cases.json", "测试向量文件路径")
-	verbose := fs.Bool("v", false, "输出每条用例的说明")
-	if err := fs.Parse(args); err != nil {
-		return 2
-	}
-	return runConformance(*vectors, *verbose)
 }

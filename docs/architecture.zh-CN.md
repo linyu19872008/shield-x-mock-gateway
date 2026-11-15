@@ -58,7 +58,7 @@ shield-x
 SDK poller
   │  全量快照
   ▼
-policyState.apply
+State.Apply
   ├─ 原子替换快照
   ├─ 落盘
   └─ 按需更新模板缓存

@@ -7,6 +7,14 @@ This project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Refactored the flat `cmd/mock-gateway` package into focused `internal/`
+  packages (`contract`, `config`, `evaluator`, `template`, `generator`,
+  `agentlink`, `state`, `logging`, `engine`, `control`, `dataplane`,
+  `conformance`, `cli`, `version`). CLI behavior and public module path are
+  unchanged.
+
 ### Added
 
 - Bilingual control UI (English and Simplified Chinese) with browser detection,
