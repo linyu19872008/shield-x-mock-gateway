@@ -1,0 +1,103 @@
+# mock-gateway 配置示例
+# 复制为 config.yaml 后按需修改；命令行参数（--rate / --base-url 等）会覆盖这里的值。
+
+shieldx:
+  # 注意：base_url 要包含路径前缀（默认 /shieldx），接口会拼在它后面
+  base_url: "http://127.0.0.1:8080/shieldx"
+  token: "sx_REPLACE_ME"
+  gateway_id: "gw-mock-01"
+  agent_version: "mock-gateway/0.1.0"
+
+  # 能力声明：服务端用它过滤掉本端不支持的策略
+  capabilities:
+    actions: ["observe", "block", "redirect", "javascript_challenge"]
+    match_fields: ["ip", "host", "path", "method", "header", "ua", "query", "cookie"]
+    block_templates: true
+    template_spec_version: 1
+    max_rules: 5000
+
+poll:
+  interval: 5s
+  timeout: 3s
+  persist_path: "./data/policy-snapshot.json"
+  use_etag: true
+
+template:
+  fetch_on_missing: true
+  timeout: 3s
+
+report:
+  interval: 2s
+  batch_size: 300
+  format: json          # json | ndjson
+  gzip: true
+  timeout: 10s
+  spool_dir: "./data/spool"
+  spool_max_mb: 200
+  max_backoff: 60s
+  jitter: 0.2
+
+generate:
+  rate: 200             # events/sec
+  workers: 4
+  duration: 0           # 0 = 一直运行
+
+  # 速率爬坡（可选）：到点切换目标速率，未列出的时间段沿用上一个台阶
+  # ramp:
+  #   - { at: "0s",   rate: 100 }
+  #   - { at: "60s",  rate: 1000 }
+  #   - { at: "180s", rate: 3000 }
+
+  paths:
+    - { path: "/api/login",        method: "POST", weight: 30 }
+    - { path: "/api/user/profile", method: "GET",  weight: 50 }
+    - { path: "/api/order",        method: "POST", weight: 10 }
+    - { path: "/admin",            method: "GET",  weight: 5  }
+    - { path: "/.env",             method: "GET",  weight: 5  }
+
+  host_pool:
+    - { host: "api.example.com",   weight: 90 }
+    - { host: "admin.example.com", weight: 10 }
+
+  ua_pool:
+    - { ua: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 Chrome/120.0 Safari/537.36", weight: 60 }
+    - { ua: "curl/8.4.0",              weight: 20 }
+    - { ua: "sqlmap/1.7.2#stable",     weight: 5  }
+    - { ua: "Googlebot/2.1 (+http://www.google.com/bot.html)", weight: 10 }
+    - { ua: "python-requests/2.31.0",  weight: 5  }
+
+  # IP 池：70% 正常 / 20% 恶意 / 10% 内网
+  ip_pools:
+    normal:    ["198.51.100.0/24", "203.0.113.0/24"]
+    malicious: ["203.0.113.66"]
+    internal:  ["10.0.0.0/8"]
+
+  status_distribution:
+    "200": 85
+    "302": 5
+    "404": 8
+    "500": 2
+
+  # 异常注入：真实网关一定会有、但最容易忘记造的事件
+  bad_event_ratio: 0.001       # 非法事件 → 验证服务端 rejected
+  gateway_error_ratio: 0.0005  # 引擎异常 → 验证「防护失效」告警
+  timeout_ratio: 0.001         # 上游超时 → 验证异常路径上报
+
+fault:
+  shieldx_down: false          # true = 完全不可达（演练断网）
+  http_status_override: 0      # 401/429/503 等，强制返回
+  latency: 0s                  # 人为延迟
+  drop_percent: 0              # 随机丢请求百分比
+
+# 数据面：mock-gateway gateway 子命令使用。
+# 默认只监听 loopback；远程监听必须显式 allow_remote: true。
+ingress:
+  listen: "127.0.0.1:18081"
+  allow_remote: false
+  mock_status: 200
+  mock_content_type: "text/plain; charset=utf-8"
+  mock_body: "mock upstream\n"
+  read_timeout: 5s
+  write_timeout: 10s
+  # 默认不信任 X-Forwarded-For；仅本机测试 IP 策略时显式打开。
+  trust_proxy: false

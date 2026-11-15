@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>mock-gateway 控制台</title>
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+  <div id="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">mg</span>
+        <div class="brand-text">
+          <strong>mock-gateway</strong>
+          <span>shield-x 模拟网关卡</span>
+        </div>
+      </div>
+
+      <nav id="nav" class="nav" aria-label="主导航">
+        <div class="nav-group">监控</div>
+        <button class="nav-item" data-page="overview">概览</button>
+
+        <div class="nav-group">接入</div>
+        <button class="nav-item" data-page="connection">连接与能力</button>
+        <button class="nav-item" data-page="policies">策略与模板</button>
+
+        <div class="nav-group">控制</div>
+        <button class="nav-item" data-page="traffic">流量生成</button>
+        <button class="nav-item" data-page="fault">故障注入</button>
+
+        <div class="nav-group">数据</div>
+        <button class="nav-item" data-page="spool">上报与 Spool</button>
+        <button class="nav-item" data-page="logs">日志与配置</button>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button id="theme-btn" class="ghost-btn" type="button">外观：自动</button>
+        <span class="contract">contract agent-v1</span>
+      </div>
+    </aside>
+
+    <div class="main">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="page-title">概览</h1>
+          <p id="page-sub">运行状态与吞吐</p>
+        </div>
+        <div class="topbar-actions">
+          <span id="run-pill" class="pill"><span class="dot"></span>连接中…</span>
+          <button id="stop-btn" class="btn btn-ghost" type="button" disabled>停止</button>
+        </div>
+      </header>
+
+      <main id="view" class="view" aria-live="polite"></main>
+    </div>
+  </div>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <div id="auth" class="auth" hidden>
+    <form id="auth-form" class="auth-card">
+      <h2>需要控制台 Token</h2>
+      <p>当前 serve 启用了 <code>--ui-token</code>。输入 Token 后会在本地保存，仅用于请求头。</p>
+      <label>Token
+        <input id="auth-token" type="password" autocomplete="off" placeholder="ui token">
+      </label>
+      <button class="btn btn-primary" type="submit">进入控制台</button>
+    </form>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
