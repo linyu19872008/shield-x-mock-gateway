@@ -7,6 +7,8 @@ This project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-15
+
 ### Changed
 
 - Refactored the flat `cmd/mock-gateway` package into focused `internal/`

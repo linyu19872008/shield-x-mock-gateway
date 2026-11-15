@@ -49,7 +49,7 @@
 ### Go install
 
 ```bash
-go install github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway@v0.1.1
+go install github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway@v0.1.2
 ```
 
 安装后的二进制名为 `mock-gateway`。
@@ -179,12 +179,12 @@ ingress:
 
 | 组件 | 版本 |
 |---|---|
-| mock-gateway | v0.1.1 |
+| mock-gateway | v0.1.2 |
 | Go | 1.26+ |
 | shield-x-client-go | v0.1.1 |
 | 契约 | agent-v1 |
 
-`v0.1.0` 使用了旧的模块布局，已 retract。请使用 `v0.1.1`。
+`v0.1.0` 使用了旧的模块布局，已 retract。请使用 `v0.1.2`。
 
 ## 安全边界
 

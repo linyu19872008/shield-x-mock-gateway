@@ -54,7 +54,7 @@ The embedded control UI supports English and Simplified Chinese.
 ### Go install
 
 ```bash
-go install github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway@v0.1.1
+go install github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway@v0.1.2
 ```
 
 The installed binary is named `mock-gateway`.
@@ -191,12 +191,12 @@ See [configuration reference](docs/configuration.md) for every field and default
 
 | Component | Version |
 |---|---|
-| mock-gateway | v0.1.1 |
+| mock-gateway | v0.1.2 |
 | Go | 1.26+ |
 | shield-x-client-go | v0.1.1 |
 | Contract | agent-v1 |
 
-The `v0.1.0` tag used an older module layout and is retracted. Use `v0.1.1`.
+The `v0.1.0` tag used an older module layout and is retracted. Use `v0.1.2`.
 
 ## Security boundaries
 
