@@ -12,7 +12,7 @@ shieldx:
   base_url: "http://127.0.0.1:8081/shieldx"
   token: "sx_REPLACE_ME"
   gateway_id: "gw-sh-01"
-  agent_version: "gateway/1.4.2"
+  agent_version: "mock-gateway/0.1.1"
   capabilities:
     actions: ["observe", "block", "redirect", "javascript_challenge"]
     match_fields: ["ip", "host", "path", "method", "header", "ua", "query", "cookie"]

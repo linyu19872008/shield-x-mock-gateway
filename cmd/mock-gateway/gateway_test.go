@@ -43,7 +43,7 @@ func TestGatewayRedirect302(t *testing.T) {
 		Priority: 850,
 		Match:    json.RawMessage(`{"all":[{"field":"ua","op":"contains","value":"Ahrefs"}]}`),
 		Action: Action{Type: "redirect", Params: map[string]any{
-			"redirect_url": "https://www.baidu.com",
+			"redirect_url": "https://example.com/trap",
 			"status_code":  float64(302),
 		}},
 	}
@@ -53,7 +53,7 @@ func TestGatewayRedirect302(t *testing.T) {
 	if w.Code != http.StatusFound {
 		t.Fatalf("status = %d, want 302", w.Code)
 	}
-	if got := w.Header().Get("Location"); got != "https://www.baidu.com" {
+	if got := w.Header().Get("Location"); got != "https://example.com/trap" {
 		t.Fatalf("Location = %q", got)
 	}
 	if got := w.Header().Get("Cache-Control"); got != "no-store" {

@@ -6,7 +6,7 @@ shieldx:
   base_url: "http://127.0.0.1:8080/shieldx"
   token: "sx_REPLACE_ME"
   gateway_id: "gw-mock-01"
-  agent_version: "mock-gateway/0.1.0"
+  agent_version: "mock-gateway/0.1.1"
 
   # 能力声明：服务端用它过滤掉本端不支持的策略
   capabilities:
