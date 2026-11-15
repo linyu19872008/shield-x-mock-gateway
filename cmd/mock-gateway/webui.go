@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-//go:embed web/*
+//go:embed web
 var webAssets embed.FS
 
 func newUIHandler() (http.Handler, error) {
@@ -19,6 +19,9 @@ func newUIHandler() (http.Handler, error) {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path == "" || r.URL.Path == "/" || strings.HasSuffix(r.URL.Path, ".html") {
 			w.Header().Set("Cache-Control", "no-store")
+		} else if strings.HasSuffix(r.URL.Path, ".js") || strings.HasSuffix(r.URL.Path, ".css") {
+			// The embedded UI has no build-time asset hashing; avoid stale i18n bundles.
+			w.Header().Set("Cache-Control", "no-cache")
 		}
 		files.ServeHTTP(w, r)
 	}), nil

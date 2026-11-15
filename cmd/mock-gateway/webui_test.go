@@ -15,7 +15,7 @@ func TestEmbeddedUI(t *testing.T) {
 		t.Fatalf("newServeHandler 失败: %v", err)
 	}
 
-	for _, path := range []string{"/", "/app.css", "/app.js"} {
+	for _, path := range []string{"/", "/app.css", "/app.js", "/i18n.js", "/locales/en.js", "/locales/zh-CN.js"} {
 		req := httptest.NewRequest(http.MethodGet, path, nil)
 		rec := httptest.NewRecorder()
 		h.ServeHTTP(rec, req)
@@ -27,6 +27,9 @@ func TestEmbeddedUI(t *testing.T) {
 		}
 		if path == "/app.js" && !strings.Contains(rec.Body.String(), "refreshStatus") {
 			t.Fatal("app.js 内容异常")
+		}
+		if path == "/" && !strings.Contains(rec.Body.String(), "data-i18n") {
+			t.Fatal("首页未接入 i18n")
 		}
 	}
 }

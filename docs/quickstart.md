@@ -61,7 +61,7 @@ Start it:
 ```
 
 Open <http://127.0.0.1:18080/>. The first poll usually appears within five
-seconds. The console shows the policy revision, templates, reporting stats,
+seconds. The UI follows the browser language; use the `EN / 中文` switch or `?lang=en` / `?lang=zh`. The console shows the policy revision, templates, reporting stats,
 queue depth, and spool state.
 
 Useful checks:

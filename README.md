@@ -33,6 +33,15 @@ proxies requests to an upstream application.
 - Batched event reporting with disk spool and replay through the SDK.
 - Language-neutral template-conformance vectors.
 
+## UI language
+
+The embedded control UI supports English and Simplified Chinese.
+
+- No saved preference: Chinese browsers start in Chinese; all others start in English.
+- Use the `EN / 中文` switch in the sidebar.
+- The choice is stored in the `mock_lang` cookie.
+- For screenshots or automation, append `?lang=en` or `?lang=zh` to the URL.
+
 ## Requirements
 
 - Go **1.26+** when installing from source or `go install`.

@@ -25,6 +25,8 @@ jobs:
         run: go build ./...
       - name: Conformance
         run: go run ./cmd/mock-gateway conformance --vectors ./testdata/template-conformance/cases.json
+      - name: UI i18n
+        run: make i18n-check
 
   links:
     runs-on: ubuntu-latest
