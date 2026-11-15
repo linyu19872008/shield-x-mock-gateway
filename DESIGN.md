@@ -590,9 +590,10 @@ mock-gateway verify --config verify.yaml
 
 ```
 mock-gateway standalone repository
-├── main.go                 # 子命令分发
-├── agentlink/
-│   └── agentlink.go        # 唯一 agent I/O 适配层（client-go 的 poller/reporter/spool）
+├── cmd/mock-gateway/
+│   ├── main.go             # 子命令分发
+│   └── agentlink/
+│       └── agentlink.go    # 唯一 agent I/O 适配层（client-go 的 poller/reporter/spool）
 ├── convert.go              # mock 模型 <-> client-go 模型
 ├── state.go                # 本地快照 + 磁盘恢复
 ├── config.example.yaml

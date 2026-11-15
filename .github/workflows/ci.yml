@@ -24,4 +24,4 @@ jobs:
       - name: Build
         run: go build ./...
       - name: Conformance
-        run: go run . conformance --vectors ./testdata/template-conformance/cases.json
+        run: go run ./cmd/mock-gateway conformance --vectors ./testdata/template-conformance/cases.json
