@@ -10,7 +10,7 @@ help:
 	@echo "make conformance 跑模板渲染一致性向量"
 
 build:
-	$(GO) build -o $(BIN) .
+	$(GO) build -o $(BIN) ./cmd/mock-gateway
 
 test:
 	$(GO) test ./...
@@ -19,7 +19,7 @@ vet:
 	$(GO) vet ./...
 
 conformance:
-	$(GO) run . conformance --vectors ./testdata/template-conformance/cases.json
+	$(GO) run ./cmd/mock-gateway conformance --vectors ./testdata/template-conformance/cases.json
 
 clean:
 	rm -f $(BIN)

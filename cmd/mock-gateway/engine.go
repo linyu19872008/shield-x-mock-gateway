@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/linyu19872008/shield-x-client-go/agent"
-	"github.com/linyu19872008/shield-x-mock-gateway/agentlink"
+	"github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway/agentlink"
 )
 
 // engine 把 agentlink（SDK 轮询/上报）与 generator 串成一条流水线。

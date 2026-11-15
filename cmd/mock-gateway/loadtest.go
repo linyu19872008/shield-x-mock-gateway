@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/linyu19872008/shield-x-mock-gateway/agentlink"
+	"github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway/agentlink"
 )
 
 // loadtestReport 是压测结束输出的 JSON 报告。

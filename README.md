@@ -11,7 +11,7 @@ It is a development data source, SDK E2E driver, load generator, and HTTP data-p
 ## 安装
 
 ```bash
-go install github.com/linyu19872008/shield-x-mock-gateway@v0.1.0
+go install github.com/linyu19872008/shield-x-mock-gateway/cmd/mock-gateway@v0.1.0
 ```
 
 或从源码构建：
@@ -19,7 +19,7 @@ go install github.com/linyu19872008/shield-x-mock-gateway@v0.1.0
 ```bash
 git clone https://github.com/linyu19872008/shield-x-mock-gateway.git
 cd shield-x-mock-gateway
-go build -o bin/mock-gateway .
+go build -o bin/mock-gateway ./cmd/mock-gateway
 ```
 
 要求 Go 1.26+。

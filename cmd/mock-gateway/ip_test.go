@@ -9,7 +9,7 @@ import (
 // randomIPIn 曾经忽略掩码，只随机末两段：对 /24 会生成网络外的地址，
 // 导致按 IP 段匹配的策略命中率极低。这个测试锁住"必须落在 CIDR 内"。
 func TestPickIPStaysInsideDeclaredCIDR(t *testing.T) {
-	cfg, err := LoadConfig("config.backfill.yaml")
+	cfg, err := LoadConfig("../../config.backfill.yaml")
 	if err != nil {
 		t.Fatalf("加载示例配置失败：%v", err)
 	}
