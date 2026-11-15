@@ -1,14 +1,16 @@
 <!--
-Derived from the shield-x repository (docs/gateway-contract-v1.md).
+Derived from the shield-x repository (docs/gateway-contract-v1.md; now agent-v1.zh-CN.md).
 Copyright 2026 linyu19872008. Licensed under Apache-2.0.
 See ../../LICENSES/Apache-2.0.txt and ../../THIRD_PARTY_NOTICES.md.
 -->
+
+[English](agent-v1.md) | **简体中文**
 
 # shield-x × gateway 接入契约 v1
 
 > Status: current · Audience: gateway team · Source of truth: yes · Last verified: 2026-11-15
 
-> 版本：**v1.0** · 日期：2026-11-14 · 状态：待 gateway 团队评审
+> 版本：**v1.0** · 日期：2026-11-14 · 状态：current
 > 读者：gateway 开发团队
 > 目的：定义 gateway 与 shield-x 之间的**全部交互**。本文档自包含，不需要先读 shield-x 架构文档。
 
@@ -119,7 +121,7 @@ Authorization: Bearer sx_EXAMPLE_TOKEN
 
 ```http
 GET /shieldx/policies/v1 HTTP/1.1
-Host: shield-x.internal:8080
+Host: shield-x.example.com:8080
 Authorization: Bearer sx_xxxxx
 X-Shieldx-Gateway-Id: gw-prod-sh-01
 X-Shieldx-Agent-Version: gateway/1.4.2
@@ -310,7 +312,7 @@ ETag: "rev-39"
 
 ```http
 POST /shieldx/events/v1 HTTP/1.1
-Host: shield-x.internal:8080
+Host: shield-x.example.com:8080
 Authorization: Bearer sx_xxxxx
 Content-Type: application/json
 Content-Encoding: gzip
@@ -808,12 +810,12 @@ Cache-Control: no-store
 
 ## 附录 A：完整请求示例
 
-> 示例按 shield-x 默认监听 `:8080` 编写。**实际地址与端口以你方部署为准**，把 `shield-x.internal:8080` 换成真实值即可。
+> 示例按 shield-x 默认监听 `:8080` 编写。**实际地址与端口以你方部署为准**，把 `shield-x.example.com:8080` 换成真实值即可。
 
 **拉策略**
 
 ```bash
-curl -sS -D- http://shield-x.internal:8080/shieldx/policies/v1 \
+curl -sS -D- http://shield-x.example.com:8080/shieldx/policies/v1 \
   -H "Authorization: Bearer $SHIELDX_TOKEN" \
   -H "X-Shieldx-Gateway-Id: gw-prod-sh-01" \
   -H "X-Shieldx-Agent-Version: gateway/1.4.2" \
@@ -824,7 +826,7 @@ curl -sS -D- http://shield-x.internal:8080/shieldx/policies/v1 \
 **上报事件（JSON）**
 
 ```bash
-curl -sS http://shield-x.internal:8080/shieldx/events/v1 \
+curl -sS http://shield-x.example.com:8080/shieldx/events/v1 \
   -H "Authorization: Bearer $SHIELDX_TOKEN" \
   -H "Content-Type: application/json" \
   --data-binary @events.json
@@ -833,7 +835,7 @@ curl -sS http://shield-x.internal:8080/shieldx/events/v1 \
 **上报事件（NDJSON + gzip）**
 
 ```bash
-curl -sS http://shield-x.internal:8080/shieldx/events/v1 \
+curl -sS http://shield-x.example.com:8080/shieldx/events/v1 \
   -H "Authorization: Bearer $SHIELDX_TOKEN" \
   -H "Content-Type: application/x-ndjson" \
   -H "Content-Encoding: gzip" \

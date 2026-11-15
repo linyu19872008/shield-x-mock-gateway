@@ -25,3 +25,10 @@ jobs:
         run: go build ./...
       - name: Conformance
         run: go run ./cmd/mock-gateway conformance --vectors ./testdata/template-conformance/cases.json
+
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check documentation links and bilingual mirrors
+        run: python3 scripts/check-docs.py

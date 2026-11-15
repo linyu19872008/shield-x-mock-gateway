@@ -2,13 +2,13 @@ mock-gateway
 Copyright 2026 linyu19872008
 
 This project was originally developed inside the shield-x repository under
-the Apache-2.0 license. From this repository's v0.1.0 release, the original
+the Apache-2.0 license. From the standalone v0.1.1 release, the original
 mock-gateway code is licensed under MIT by the copyright owner.
 
 Two data/documentation assets remain under Apache-2.0 because they are
 shared contract artifacts derived from shield-x:
 
 - testdata/template-conformance/
-- docs/contract/gateway-contract-v1.md
+- docs/contract/agent-v1.zh-CN.md
 
 See THIRD_PARTY_NOTICES.md and LICENSES/Apache-2.0.txt.
