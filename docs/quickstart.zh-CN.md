@@ -59,7 +59,7 @@ shieldx:
 ./bin/mock-gateway serve --config ./config.yaml
 ```
 
-打开 <http://127.0.0.1:18080/>。首次拉策略通常在 5 秒内完成。控制台会显示策略 revision、模板、上报统计、队列深度和 spool 状态。
+打开 <http://127.0.0.1:18080/>。首次拉策略通常在 5 秒内完成。 UI 会跟随浏览器语言；使用 `EN / 中文` 切换，或通过 `?lang=en` / `?lang=zh` 覆盖。控制台会显示策略 revision、模板、上报统计、队列深度和 spool 状态。
 
 常用检查：
 

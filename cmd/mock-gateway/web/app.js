@@ -1,14 +1,15 @@
 (function () {
   "use strict";
 
+  var tr = MockI18n.t;
   var PAGES = {
-    overview: { title: "概览", sub: "运行状态与吞吐" },
-    connection: { title: "连接与能力", sub: "shield-x 接入参数与能力声明" },
-    policies: { title: "策略与模板", sub: "当前快照与模板缓存" },
-    traffic: { title: "流量生成", sub: "启动 / 停止与速率控制" },
-    fault: { title: "故障注入", sub: "模拟 shield-x 不可达与异常" },
-    spool: { title: "上报与 Spool", sub: "队列、重试与磁盘补发" },
-    logs: { title: "日志与配置", sub: "环形日志与脱敏配置" }
+    overview: { titleKey: "page.overview.title", subKey: "page.overview.subtitle" },
+    connection: { titleKey: "page.connection.title", subKey: "page.connection.subtitle" },
+    policies: { titleKey: "page.policies.title", subKey: "page.policies.subtitle" },
+    traffic: { titleKey: "page.traffic.title", subKey: "page.traffic.subtitle" },
+    fault: { titleKey: "page.fault.title", subKey: "page.fault.subtitle" },
+    spool: { titleKey: "page.spool.title", subKey: "page.spool.subtitle" },
+    logs: { titleKey: "page.logs.title", subKey: "page.logs.subtitle" }
   };
 
   var state = {
@@ -37,7 +38,7 @@
 
   function num(value) {
     var n = Number(value || 0);
-    return Number.isFinite(n) ? n.toLocaleString("en-US") : "0";
+    return Number.isFinite(n) ? MockI18n.formatNumber(n) : "0";
   }
 
   function fmtBytes(n) {
@@ -48,17 +49,11 @@
   }
 
   function fmtTime(value) {
-    if (!value) return "—";
-    var d = new Date(value);
-    if (isNaN(d.getTime()) || d.getFullYear() < 2000) return "—";
-    return d.toLocaleString("zh-CN", { hour12: false });
+    return MockI18n.formatDateTime(value);
   }
 
   function fmtClock(value) {
-    if (!value) return "";
-    var d = new Date(value);
-    if (isNaN(d.getTime())) return "";
-    return d.toLocaleTimeString("zh-CN", { hour12: false });
+    return MockI18n.formatClock(value);
   }
 
   function fmtUptime(seconds) {
@@ -106,12 +101,12 @@
         body: options.body
       });
     } catch (err) {
-      throw new Error("无法连接控制台：" + err.message);
+      throw new Error(tr("error.consoleConnection", { error: err.message }));
     }
 
     if (res.status === 401) {
       openAuth();
-      throw new Error("需要控制台 Token");
+      throw new Error(tr("api.error.UNAUTHORIZED"));
     }
 
     var text = await res.text();
@@ -120,8 +115,8 @@
       try { data = JSON.parse(text); } catch (err) { data = null; }
     }
     if (!res.ok) {
-      var msg = data && data.error && data.error.message ? data.error.message : "HTTP " + res.status;
-      throw new Error(msg);
+      var code = data && data.error ? data.error.code : "";
+      throw new Error(MockI18n.apiError(code, res.status));
     }
     return data;
   }
@@ -157,8 +152,7 @@
     } else {
       document.documentElement.setAttribute("data-theme", theme);
     }
-    var label = theme === "auto" ? "自动" : theme === "light" ? "浅色" : "深色";
-    $("#theme-btn").textContent = "外观：" + label;
+    $("#theme-btn").textContent = tr("theme.label", { theme: tr("theme." + theme) });
   }
 
   function renderChrome() {
@@ -166,24 +160,24 @@
     var stopBtn = $("#stop-btn");
     if (!state.online) {
       pill.className = "pill bad";
-      pill.innerHTML = '<span class="dot"></span>控制台离线';
+      pill.innerHTML = '<span class="dot"></span>' + esc(tr("status.offline"));
       stopBtn.disabled = true;
       return;
     }
     var s = state.status;
     if (!s) {
       pill.className = "pill";
-      pill.innerHTML = '<span class="dot"></span>连接中…';
+      pill.innerHTML = '<span class="dot"></span>' + esc(tr("status.connecting"));
       stopBtn.disabled = true;
       return;
     }
     if (s.running) {
       pill.className = "pill ok";
-      pill.innerHTML = '<span class="dot"></span>运行中 · ' + esc(s.mode || "run");
+      pill.innerHTML = '<span class="dot"></span>' + esc(tr("status.running", { mode: s.mode || "run" }));
       stopBtn.disabled = false;
     } else {
       pill.className = "pill";
-      pill.innerHTML = '<span class="dot"></span>未运行';
+      pill.innerHTML = '<span class="dot"></span>' + esc(tr("status.idle"));
       stopBtn.disabled = true;
     }
   }
@@ -201,7 +195,7 @@
       else if (state.page === "spool") renderSpool();
       else if (state.page === "traffic") renderTrafficStatus();
     } catch (err) {
-      if (err.message !== "需要控制台 Token") {
+      if (err.message !== tr("api.error.UNAUTHORIZED")) {
         state.online = false;
         renderChrome();
       }
@@ -209,11 +203,11 @@
   }
 
   function loadingBlock() {
-    return '<div class="loading">加载中…</div>';
+    return '<div class="loading">' + esc(tr("common.loading")) + "</div>";
   }
 
   function errorBlock(message) {
-    return '<div class="card"><div class="callout error"><strong>加载失败：</strong>' + esc(message) + "</div></div>";
+    return '<div class="card"><div class="callout error"><strong>' + esc(tr("error.loadFailed", { error: message })) + "</strong></div></div>";
   }
 
   function emptyBlock(title, body) {
@@ -233,33 +227,35 @@
       return;
     }
     var running = !!s.running;
-    var modeLabel = s.mode === "loadtest" ? "压测" : "常驻模拟";
+    var modeLabel = tr(s.mode === "loadtest" ? "overview.mode.loadtest" : "overview.mode.run");
     var gateway = state.config ? state.config.gateway_id : "";
 
     var cards = [
-      ["已生成", num(s.generated), "generator 产出"],
-      ["已入队", num(s.enqueued), "进入上报队列"],
-      ["已发批次", num(s.sent), "HTTP 请求次数"],
-      ["服务端接收", num(s.accepted), "accepted"],
-      ["拒绝", num(s.rejected), "rejected"],
-      ["客户端丢弃", num(s.dropped), "队列满 / 非法事件"],
-      ["队列深度", num(s.queue_depth), "待上报事件"],
-      ["Spool", num(s.spool_events), "待补发事件"]
-    ].map(function (item) { return statCard(item[0], item[1], item[2]); }).join("");
+      ["overview.stat.generated", num(s.generated), "overview.stat.generated.foot"],
+      ["overview.stat.enqueued", num(s.enqueued), "overview.stat.enqueued.foot"],
+      ["overview.stat.sent", num(s.sent), "overview.stat.sent.foot"],
+      ["overview.stat.accepted", num(s.accepted), "overview.stat.accepted.foot"],
+      ["overview.stat.rejected", num(s.rejected), "overview.stat.rejected.foot"],
+      ["overview.stat.dropped", num(s.dropped), "overview.stat.dropped.foot"],
+      ["overview.stat.queue", num(s.queue_depth), "overview.stat.queue.foot"],
+      ["overview.stat.spool", num(s.spool_events), "overview.stat.spool.foot"]
+    ].map(function (item) {
+      return statCard(tr(item[0] + ".label"), item[1], tr(item[2]));
+    }).join("");
 
     var pollTotal = Number(s.poll_success || 0) + Number(s.poll_not_modified || 0);
     var lastError = s.last_error
-      ? '<div class="callout error"><strong>最近错误：</strong>' + esc(s.last_error) + "</div>"
-      : '<div class="callout">最近没有错误。</div>';
+      ? '<div class="callout error"><strong>' + esc(tr("overview.lastError")) + '</strong>' + esc(s.last_error) + "</div>"
+      : '<div class="callout">' + esc(tr("overview.noError")) + "</div>";
 
     view.innerHTML =
       '<section class="card hero">' +
         '<div>' +
-          '<span class="eyebrow">' + (running ? "运行中" : "空闲") + "</span>" +
-          "<h2>" + (running ? modeLabel + "进行中" : "mock-gateway 已就绪") + "</h2>" +
-          "<p>" + (running
-            ? "已运行 " + fmtUptime(s.uptime_seconds) + "，gateway " + esc(gateway || "—") + "。事件经 shield-x-client-go 上报。"
-            : "在「流量生成」页选择 run 或 loadtest 启动；求值、渲染与流量生成由 mock 独立完成。") +
+          '<span class="eyebrow">' + esc(tr(running ? "overview.eyebrow.running" : "overview.eyebrow.idle")) + "</span>" +
+          "<h2>" + esc(running ? tr("overview.heading.running", { mode: modeLabel }) : tr("overview.heading.ready")) + "</h2>" +
+          "<p>" + esc(running
+            ? tr("overview.running.description", { uptime: fmtUptime(s.uptime_seconds), gateway: gateway || tr("overview.unknown") })
+            : tr("overview.idle.description")) +
           "</p>" +
         "</div>" +
         '<div class="hero-meta">' +
@@ -271,17 +267,17 @@
       '<div class="grid stats">' + cards + "</div>" +
       '<div class="grid two">' +
         '<section class="card">' +
-          '<div class="card-head"><div><h2>轮询与快照</h2><p>SDK poller 的 200 / 304 与健康度</p></div></div>' +
+          '<div class="card-head"><div><h2>' + esc(tr("overview.poll.title")) + "</h2><p>" + esc(tr("overview.poll.subtitle")) + "</p></div></div>" +
           '<dl class="kv">' +
-            "<dt>200 成功</dt><dd>" + num(s.poll_success) + "</dd>" +
-            "<dt>304 未变更</dt><dd>" + num(s.poll_not_modified) + "（" + esc(pct(s.poll_not_modified, pollTotal)) + "）</dd>" +
-            "<dt>失败</dt><dd>" + num(s.poll_failures) + "</dd>" +
-            "<dt>当前 revision</dt><dd>" + num(s.revision) + "</dd>" +
-            "<dt>策略 / 模板</dt><dd>" + num(s.policies) + " / " + num(s.templates) + "</dd>" +
+            "<dt>" + esc(tr("overview.poll.success")) + "</dt><dd>" + num(s.poll_success) + "</dd>" +
+            "<dt>" + esc(tr("overview.poll.notModified")) + "</dt><dd>" + num(s.poll_not_modified) + "（" + esc(pct(s.poll_not_modified, pollTotal)) + "）</dd>" +
+            "<dt>" + esc(tr("overview.poll.failed")) + "</dt><dd>" + num(s.poll_failures) + "</dd>" +
+            "<dt>" + esc(tr("overview.poll.revision")) + "</dt><dd>" + num(s.revision) + "</dd>" +
+            "<dt>" + esc(tr("overview.poll.counts")) + "</dt><dd>" + num(s.policies) + " / " + num(s.templates) + "</dd>" +
           "</dl>" +
         "</section>" +
         '<section class="card">' +
-          '<div class="card-head"><div><h2>最近错误</h2><p>来自 SDK 的 poller / reporter</p></div></div>' +
+          '<div class="card-head"><div><h2>' + esc(tr("overview.errors.title")) + "</h2><p>" + esc(tr("overview.errors.subtitle")) + "</p></div></div>" +
           lastError +
         "</section>" +
       "</div>";
@@ -300,34 +296,34 @@
 
     view.innerHTML =
       '<section class="card">' +
-        '<div class="card-head"><div><h2>接入配置</h2><p>来自启动时的配置；修改需重启 serve</p></div></div>' +
+        '<div class="card-head"><div><h2>' + esc(tr("connection.title")) + "</h2><p>" + esc(tr("connection.subtitle")) + "</p></div></div>" +
         '<dl class="kv">' +
-          "<dt>Base URL</dt><dd>" + esc(cfg.base_url) + "</dd>" +
-          "<dt>Gateway ID</dt><dd>" + esc(cfg.gateway_id) + "</dd>" +
-          "<dt>Agent Version</dt><dd>" + esc(cfg.agent_version) + "</dd>" +
-          "<dt>租户 Token</dt><dd>" + (cfg.token_set ? "已配置（不回显）" : "未配置") + "</dd>" +
-          "<dt>拉策略周期</dt><dd>" + esc(cfg.poll_interval) + "</dd>" +
-          "<dt>上报周期 / 格式</dt><dd>" + esc(cfg.report_interval) + " · " + esc(cfg.report_format) + "</dd>" +
-          "<dt>Spool 目录</dt><dd>" + esc(cfg.spool_dir || "未启用") + "</dd>" +
+          "<dt>" + esc(tr("connection.baseUrl")) + "</dt><dd>" + esc(cfg.base_url) + "</dd>" +
+          "<dt>" + esc(tr("connection.gatewayId")) + "</dt><dd>" + esc(cfg.gateway_id) + "</dd>" +
+          "<dt>" + esc(tr("connection.agentVersion")) + "</dt><dd>" + esc(cfg.agent_version) + "</dd>" +
+          "<dt>" + esc(tr("connection.tenantToken")) + "</dt><dd>" + esc(tr(cfg.token_set ? "connection.tokenSet" : "connection.tokenMissing")) + "</dd>" +
+          "<dt>" + esc(tr("connection.pollInterval")) + "</dt><dd>" + esc(cfg.poll_interval) + "</dd>" +
+          "<dt>" + esc(tr("connection.reportInterval")) + "</dt><dd>" + esc(cfg.report_interval) + " · " + esc(cfg.report_format) + "</dd>" +
+          "<dt>" + esc(tr("connection.spoolDir")) + "</dt><dd>" + esc(cfg.spool_dir || tr("connection.spoolDisabled")) + "</dd>" +
         "</dl>" +
       "</section>" +
       '<section class="card">' +
-        '<div class="card-head"><div><h2>能力声明</h2><p>随拉策略请求发送，服务端据此过滤策略</p></div></div>' +
-        '<div class="chips" style="margin-bottom:12px">' + (actions || '<span class="muted small">未声明动作</span>') + "</div>" +
-        '<div class="chips" style="margin-bottom:12px">' + (fields || '<span class="muted small">未声明匹配字段</span>') + "</div>" +
+        '<div class="card-head"><div><h2>' + esc(tr("connection.capabilities.title")) + "</h2><p>" + esc(tr("connection.capabilities.subtitle")) + "</p></div></div>" +
+        '<div class="chips" style="margin-bottom:12px">' + (actions || '<span class="muted small">' + esc(tr("connection.actionsEmpty")) + "</span>") + "</div>" +
+        '<div class="chips" style="margin-bottom:12px">' + (fields || '<span class="muted small">' + esc(tr("connection.fieldsEmpty")) + "</span>") + "</div>" +
         '<dl class="kv">' +
-          "<dt>自定义模板</dt><dd>" + (caps.block_templates ? "支持" : "不支持") + "</dd>" +
-          "<dt>模板规范版本</dt><dd>" + num(caps.template_spec_version) + "</dd>" +
-          "<dt>最大策略数</dt><dd>" + num(caps.max_rules) + "</dd>" +
+          "<dt>" + esc(tr("connection.customTemplates")) + "</dt><dd>" + esc(tr(caps.block_templates ? "common.supported" : "common.unsupported")) + "</dd>" +
+          "<dt>" + esc(tr("connection.templateSpecVersion")) + "</dt><dd>" + num(caps.template_spec_version) + "</dd>" +
+          "<dt>" + esc(tr("connection.maxRules")) + "</dt><dd>" + num(caps.max_rules) + "</dd>" +
         "</dl>" +
       "</section>" +
       '<section class="card">' +
-        '<div class="card-head"><div><h2>故障注入配置</h2><p>运行时仅「不可达」可切换，其余需改配置并重启</p></div></div>' +
+        '<div class="card-head"><div><h2>' + esc(tr("connection.fault.title")) + "</h2><p>" + esc(tr("connection.fault.subtitle")) + "</p></div></div>" +
         '<dl class="kv">' +
-          "<dt>shield-x 不可达</dt><dd>" + (fault.shieldx_down ? "开启" : "关闭") + "</dd>" +
-          "<dt>注入延迟</dt><dd>" + esc(fault.latency || "0s") + "</dd>" +
-          "<dt>丢包比例</dt><dd>" + num(fault.drop_percent) + "%</dd>" +
-          "<dt>状态码覆盖</dt><dd>" + (fault.http_status_override ? num(fault.http_status_override) : "未开启") + "</dd>" +
+          "<dt>" + esc(tr("connection.fault.down")) + "</dt><dd>" + esc(tr(fault.shieldx_down ? "common.on" : "common.off")) + "</dd>" +
+          "<dt>" + esc(tr("connection.fault.latency")) + "</dt><dd>" + esc(fault.latency || "0s") + "</dd>" +
+          "<dt>" + esc(tr("connection.fault.drop")) + "</dt><dd>" + num(fault.drop_percent) + "%</dd>" +
+          "<dt>" + esc(tr("connection.fault.status")) + "</dt><dd>" + esc(fault.http_status_override ? num(fault.http_status_override) : tr("connection.fault.statusOff")) + "</dd>" +
         "</dl>" +
       "</section>";
   }
@@ -343,9 +339,13 @@
 
     var header =
       '<section class="card">' +
-        '<div class="card-head"><div><h2>策略快照</h2><p>revision ' + num(snap.revision) +
-          " · 拉取于 " + esc(fmtTime(snap.fetched_at)) + " · 服务端 " + esc(snap.server || "—") + "</p></div>" +
-          '<button id="refresh-policies" class="btn btn-ghost" type="button">刷新</button></div>';
+        '<div class="card-head"><div><h2>' + esc(tr("policies.title")) + "</h2><p>" +
+          esc(tr("policies.subtitle", {
+            revision: num(snap.revision),
+            time: fmtTime(snap.fetched_at),
+            server: snap.server || tr("common.none")
+          })) + "</p></div>" +
+          '<button id="refresh-policies" class="btn btn-ghost" type="button">' + esc(tr("policies.refresh")) + "</button></div>";
 
     var body = policies.length
       ? policies.map(function (p) {
@@ -353,7 +353,7 @@
           return '<details class="policy">' +
             "<summary>" +
               '<span class="prio">' + num(p.priority) + "</span>" +
-              '<span class="policy-name">' + esc(p.name || "未命名策略") + "</span>" +
+              '<span class="policy-name">' + esc(p.name || tr("policies.unnamed")) + "</span>" +
               '<span class="policy-id">' + esc(p.id) + "</span>" +
               '<span class="spacer"></span>' +
               '<span class="badge' + policyActionClass(action) + '">' + esc(action) + "</span>" +
@@ -361,45 +361,46 @@
             "<pre>" + esc(JSON.stringify({ match: p.match, action: p.action }, null, 2)) + "</pre>" +
           "</details>";
         }).join("")
-      : emptyBlock("当前没有策略", "租户策略为空时，mock 会按空快照运行。");
+      : emptyBlock(tr("policies.empty.title"), tr("policies.empty.body"));
 
     var tplBody = templates.length
-      ? '<div class="tpl-grid">' + templates.map(function (t) {
-          var vars = Object.keys(t.vars || {}).map(function (k) {
+      ? '<div class="tpl-grid">' + templates.map(function (tpl) {
+          var vars = Object.keys(tpl.vars || {}).map(function (k) {
             return '<span class="chip">' + esc(k) + "</span>";
           }).join("");
-          var headers = Object.keys(t.headers || {}).map(function (k) {
+          var headers = Object.keys(tpl.headers || {}).map(function (k) {
             return '<span class="chip">' + esc(k) + "</span>";
           }).join("");
           return '<article class="tpl-card">' +
-            "<header><h3>" + esc(t.name || t.id) + "</h3>" +
-              '<p class="meta">' + esc(t.id) + " · v" + num(t.version) + "</p>" +
-              '<p class="meta">' + esc(t.content_type || "") + " · " + num(t.status_code) + "</p></header>" +
-            '<pre class="tpl-preview">' + esc(t.content || "") + "</pre>" +
+            "<header><h3>" + esc(tpl.name || tpl.id) + "</h3>" +
+              '<p class="meta">' + esc(tpl.id) + " · v" + num(tpl.version) + "</p>" +
+              '<p class="meta">' + esc(tpl.content_type || "") + " · " + num(tpl.status_code) + "</p></header>" +
+            '<pre class="tpl-preview">' + esc(tpl.content || "") + "</pre>" +
             "<footer>" + (vars || headers
               ? '<div class="chips">' + vars + headers + "</div>"
-              : '<span class="muted small">无变量 / 自定义头</span>') + "</footer>" +
+              : '<span class="muted small">' + esc(tr("policies.noVars")) + "</span>") + "</footer>" +
           "</article>";
         }).join("") + "</div>"
-      : emptyBlock("当前没有模板", "策略引用到缺失模板时，mock 会触发一次模板拉取。");
+      : emptyBlock(tr("policies.templates.empty.title"), tr("policies.templates.empty.body"));
 
     view.innerHTML = header + body +
-      '<div class="card-head" style="margin-top:16px"><div><h2>拦截模板</h2><p>来自 SDK 的模板快照</p></div></div>' +
+      '<div class="card-head" style="margin-top:16px"><div><h2>' + esc(tr("policies.templates.title")) +
+      "</h2><p>" + esc(tr("policies.templates.subtitle")) + "</p></div></div>" +
       tplBody + "</section>";
 
     var btn = $("#refresh-policies");
     if (btn) {
       btn.addEventListener("click", async function () {
         btn.disabled = true;
-        btn.textContent = "刷新中…";
+        btn.textContent = tr("policies.refreshing");
         try {
           await loadPolicies(true);
           renderPolicies();
-          toast("策略与模板已刷新");
+          toast(tr("policies.refreshed"));
         } catch (err) {
           toast(err.message, "error");
           btn.disabled = false;
-          btn.textContent = "刷新";
+          btn.textContent = tr("policies.refresh");
         }
       });
     }
@@ -410,20 +411,20 @@
     var rate = Number(cfg.rate || 20);
     view.innerHTML =
       '<section class="card">' +
-        '<div class="card-head"><div><h2>启动模拟</h2><p>run 常驻；loadtest 到点自动停止并 flush</p></div></div>' +
-        '<p class="hint" style="margin:0 0 12px">表单用于下一次启动；当前运行速率见下方状态。</p>' +
+        '<div class="card-head"><div><h2>' + esc(tr("traffic.title")) + "</h2><p>" + esc(tr("traffic.subtitle")) + "</p></div></div>" +
+        '<p class="hint" style="margin:0 0 12px">' + esc(tr("traffic.hint")) + "</p>" +
         '<div class="form-grid">' +
-          '<label class="field">模式<select id="traffic-mode">' +
-            '<option value="run">run · 常驻</option>' +
-            '<option value="loadtest">loadtest · 定时</option>' +
+          '<label class="field">' + esc(tr("traffic.mode")) + '<select id="traffic-mode">' +
+            '<option value="run">' + esc(tr("traffic.mode.run")) + "</option>" +
+            '<option value="loadtest">' + esc(tr("traffic.mode.loadtest")) + "</option>" +
           "</select></label>" +
-          '<label class="field">速率 events/s<input id="traffic-rate" type="number" min="1" value="' + rate + '"></label>' +
-          '<label class="field">时长（loadtest）<input id="traffic-duration" type="text" value="30s" disabled></label>' +
+          '<label class="field">' + esc(tr("traffic.rate")) + '<input id="traffic-rate" type="number" min="1" value="' + rate + '"></label>' +
+          '<label class="field">' + esc(tr("traffic.duration")) + '<input id="traffic-duration" type="text" value="30s" disabled></label>' +
         "</div>" +
         '<div class="row-actions">' +
-          '<button id="traffic-start" class="btn btn-primary" type="button">启动</button>' +
-          '<button id="traffic-stop" class="btn btn-ghost" type="button">停止</button>' +
-          '<span class="hint">预设：</span>' +
+          '<button id="traffic-start" class="btn btn-primary" type="button">' + esc(tr("common.start")) + "</button>" +
+          '<button id="traffic-stop" class="btn btn-ghost" type="button">' + esc(tr("common.stop")) + "</button>" +
+          '<span class="hint">' + esc(tr("traffic.presets")) + "</span>" +
           '<button class="btn btn-ghost" type="button" data-rate="20">20</button>' +
           '<button class="btn btn-ghost" type="button" data-rate="200">200</button>' +
           '<button class="btn btn-ghost" type="button" data-rate="1000">1000</button>' +
@@ -432,9 +433,8 @@
         '<div id="traffic-state" class="inline-status"></div>' +
       "</section>" +
       '<section class="card">' +
-        '<div class="card-head"><div><h2>说明</h2></div></div>' +
-        '<div class="callout">loadtest 在时长到达后由 Controller 自动取消运行；SDK reporter 会按 ShutdownTimeout 做最后一次 flush。' +
-        "生成速率是目标值，实际达成率受本机 CPU 与网络影响。</div>" +
+        '<div class="card-head"><div><h2>' + esc(tr("traffic.note.title")) + "</h2></div></div>" +
+        '<div class="callout">' + esc(tr("traffic.note.body")) + "</div>" +
       "</section>";
 
     var mode = $("#traffic-mode");
@@ -463,9 +463,14 @@
       return;
     }
     el.textContent = s.running
-      ? "运行中：" + (s.mode || "run") + " · " + num(s.rate) + "/s · 已生成 " + num(s.generated) +
-        " · accepted " + num(s.accepted) + " · 队列 " + num(s.queue_depth)
-      : "当前未运行。";
+      ? tr("traffic.running", {
+          mode: s.mode || "run",
+          rate: num(s.rate),
+          generated: num(s.generated),
+          accepted: num(s.accepted),
+          queue: num(s.queue_depth)
+        })
+      : tr("traffic.notRunning");
   }
 
   async function startFlow() {
@@ -476,38 +481,38 @@
 
     var rate = Number(rateEl.value);
     if (!Number.isFinite(rate) || rate < 1) {
-      toast("速率必须是正整数", "error");
+      toast(tr("traffic.invalidRate"), "error");
       return;
     }
     var mode = modeEl.value;
     var duration = mode === "loadtest" ? durEl.value.trim() : "";
     if (mode === "loadtest" && !duration) {
-      toast("loadtest 需要填写时长，例如 30s", "error");
+      toast(tr("traffic.durationRequired"), "error");
       return;
     }
 
     var btn = $("#traffic-start");
     btn.disabled = true;
-    btn.textContent = "启动中…";
+    btn.textContent = tr("common.starting");
     try {
       await api("/api/start", {
         method: "POST",
         body: JSON.stringify({ mode: mode, rate: rate, duration: duration })
       });
-      toast("已启动：" + mode);
+      toast(tr("traffic.started", { mode: mode }));
       await refreshStatus();
     } catch (err) {
       toast(err.message, "error");
     } finally {
       btn.disabled = false;
-      btn.textContent = "启动";
+      btn.textContent = tr("common.start");
     }
   }
 
   async function stopFlow() {
     try {
       await api("/api/stop", { method: "POST", body: "{}" });
-      toast("已停止");
+      toast(tr("traffic.stopped"));
       await refreshStatus();
     } catch (err) {
       toast(err.message, "error");
@@ -523,20 +528,20 @@
     var fault = cfg.fault || {};
     view.innerHTML =
       '<section class="card">' +
-        '<div class="card-head"><div><h2>运行时开关</h2><p>立即生效，不需要重启</p></div></div>' +
+        '<div class="card-head"><div><h2>' + esc(tr("fault.title")) + "</h2><p>" + esc(tr("fault.subtitle")) + "</p></div></div>" +
         '<label class="switch">' +
           '<input id="fault-down" type="checkbox"' + (fault.shieldx_down ? " checked" : "") + ">" +
           '<span class="switch-track"></span>' +
-          "<span>模拟 shield-x 不可达</span>" +
+          "<span>" + esc(tr("fault.toggle")) + "</span>" +
         "</label>" +
-        '<div class="callout warn" style="margin-top:14px">开启后，SDK 的拉策略/上报都会失败：poller 保留旧快照并按退避重试，reporter 会把批次写入 spool（若配置了目录）。</div>' +
+        '<div class="callout warn" style="margin-top:14px">' + esc(tr("fault.warning")) + "</div>" +
       "</section>" +
       '<section class="card">' +
-        '<div class="card-head"><div><h2>静态注入配置</h2><p>来自配置文件，修改后需重启 serve</p></div></div>' +
+        '<div class="card-head"><div><h2>' + esc(tr("fault.static.title")) + "</h2><p>" + esc(tr("fault.static.subtitle")) + "</p></div></div>" +
         '<dl class="kv">' +
-          "<dt>注入延迟</dt><dd>" + esc(fault.latency || "0s") + "</dd>" +
-          "<dt>丢包比例</dt><dd>" + num(fault.drop_percent) + "%</dd>" +
-          "<dt>状态码覆盖</dt><dd>" + (fault.http_status_override ? num(fault.http_status_override) : "未开启") + "</dd>" +
+          "<dt>" + esc(tr("fault.latency")) + "</dt><dd>" + esc(fault.latency || "0s") + "</dd>" +
+          "<dt>" + esc(tr("fault.drop")) + "</dt><dd>" + num(fault.drop_percent) + "%</dd>" +
+          "<dt>" + esc(tr("fault.status")) + "</dt><dd>" + esc(fault.http_status_override ? num(fault.http_status_override) : tr("fault.statusOff")) + "</dd>" +
         "</dl>" +
       "</section>";
 
@@ -547,7 +552,7 @@
       try {
         await api("/api/fault", { method: "POST", body: JSON.stringify({ down: down }) });
         fault.shieldx_down = down;
-        toast(down ? "已切换为不可达" : "已恢复连接");
+        toast(tr(down ? "fault.enabled" : "fault.recovered"));
         await refreshStatus();
       } catch (err) {
         input.checked = !down;
@@ -567,21 +572,19 @@
     }
     view.innerHTML =
       '<div class="grid three">' +
-        statCard("待补发事件", num(s.spool_events), "spool 中的事件数") +
-        statCard("文件数", num(s.spool_files), "磁盘批次文件") +
-        statCard("占用空间", fmtBytes(s.spool_bytes), "spool 目录") +
+        statCard(tr("spool.pending.label"), num(s.spool_events), tr("spool.pending.foot")) +
+        statCard(tr("spool.files.label"), num(s.spool_files), tr("spool.files.foot")) +
+        statCard(tr("spool.size.label"), fmtBytes(s.spool_bytes), tr("spool.size.foot")) +
       "</div>" +
       '<section class="card">' +
-        '<div class="card-head"><div><h2>补发策略</h2><p>由 SDK reporter 管理</p></div></div>' +
+        '<div class="card-head"><div><h2>' + esc(tr("spool.title")) + "</h2><p>" + esc(tr("spool.subtitle")) + "</p></div></div>" +
         '<div class="callout">' +
-          "上报失败（5xx / 超时 / 网络）时，SDK 会把批次写入 <code>" + esc(cfg.spool_dir || "（未配置）") +
-          "</code>；Run 启动时与恢复成功后自动补发。413 会先拆半，400 直接丢弃并计数。" +
-          "本页只读；清空目录请在确认后手动操作。" +
+          tr("spool.body", { dir: esc(cfg.spool_dir || tr("spool.dirDisabled")) }) +
         "</div>" +
         '<dl class="kv" style="margin-top:12px">' +
-          "<dt>队列深度</dt><dd>" + num(s.queue_depth) + "</dd>" +
-          "<dt>已落盘</dt><dd>" + num(s.spooled) + "（累计）</dd>" +
-          "<dt>已补发</dt><dd>" + num(s.replayed) + "（累计）</dd>" +
+          "<dt>" + esc(tr("spool.queue")) + "</dt><dd>" + num(s.queue_depth) + "</dd>" +
+          "<dt>" + esc(tr("spool.disk")) + "</dt><dd>" + num(s.spooled) + "</dd>" +
+          "<dt>" + esc(tr("spool.replayed")) + "</dt><dd>" + num(s.replayed) + "</dd>" +
         "</dl>" +
       "</section>";
   }
@@ -589,15 +592,15 @@
   function renderLogs() {
     view.innerHTML =
       '<section class="card">' +
-        '<div class="card-head"><div><h2>环形日志</h2><p>最近 500 条，包含 SDK 的 poller / reporter 错误</p></div></div>' +
+        '<div class="card-head"><div><h2>' + esc(tr("logs.title")) + "</h2><p>" + esc(tr("logs.subtitle")) + "</p></div></div>" +
         '<div class="toolbar">' +
-          '<input id="log-filter" class="filter" placeholder="过滤关键字" value="' + esc(state.logFilter) + '">' +
-          '<button id="refresh-logs" class="btn btn-ghost" type="button">刷新</button>' +
-        '</div>' +
+          '<input id="log-filter" class="filter" placeholder="' + esc(tr("logs.filter")) + '" value="' + esc(state.logFilter) + '">' +
+          '<button id="refresh-logs" class="btn btn-ghost" type="button">' + esc(tr("logs.refresh")) + "</button>" +
+        "</div>" +
         '<div id="log-list"></div>' +
       "</section>" +
       '<details class="card">' +
-        "<summary><strong>脱敏配置 JSON</strong> <span class=\"muted small\">点击展开</span></summary>" +
+        "<summary><strong>" + esc(tr("logs.config")) + '</strong> <span class="muted small">' + esc(tr("logs.expand")) + "</span></summary>" +
         '<pre class="mono small" style="margin:10px 0 0;overflow:auto">' + esc(JSON.stringify(state.config || {}, null, 2)) + "</pre>" +
       "</details>";
 
@@ -618,7 +621,10 @@
       return !needle || String(item.message || "").toLowerCase().indexOf(needle) >= 0;
     });
     if (!items.length) {
-      box.innerHTML = emptyBlock("没有匹配的日志", state.logFilter ? "换个关键字试试。" : "运行 mock 后这里会出现轮询/上报日志。");
+      box.innerHTML = emptyBlock(
+        tr("logs.empty.filtered"),
+        state.logFilter ? tr("logs.empty.hint") : tr("logs.empty.none")
+      );
       return;
     }
     box.innerHTML = '<div class="logs">' + items.map(function (item) {
@@ -669,8 +675,8 @@
       if (btn.getAttribute("data-page") === page) btn.setAttribute("aria-current", "page");
       else btn.removeAttribute("aria-current");
     });
-    $("#page-title").textContent = PAGES[page].title;
-    $("#page-sub").textContent = PAGES[page].sub;
+    $("#page-title").textContent = tr(PAGES[page].titleKey);
+    $("#page-sub").textContent = tr(PAGES[page].subKey);
     if (updateHash !== false) location.hash = page;
     view.innerHTML = loadingBlock();
     renderPage(page);

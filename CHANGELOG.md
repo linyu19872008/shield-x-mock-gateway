@@ -7,6 +7,13 @@ This project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Added
+
+- Bilingual control UI (English and Simplified Chinese) with browser detection,
+  a sidebar switcher, cookie persistence, and `?lang=en|zh` overrides.
+- Localized API error messages driven by control-API error codes.
+- English and Chinese UI screenshots.
+
 ## [0.1.1] - 2026-11-15
 
 ### Added
