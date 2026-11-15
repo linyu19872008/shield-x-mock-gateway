@@ -16,24 +16,27 @@
 
 ```text
 cmd/mock-gateway/
-  main.go           子命令分发
-  agentlink/        唯一 shield-x-client-go 适配层
-  config.go         YAML schema、默认值、校验
-  state.go          策略快照和磁盘持久化
-  evaluator.go      first-match 策略求值
-  renderer.go       模板渲染
-  templates.go      模板缓存和兜底页
-  generator.go      合成流量
-  gateway.go        HTTP 数据面
-  serve.go          控制台 UI/API
-  run.go            无界面生成器
-  loadtest.go       压测和报告
-  web/              内嵌控制台
+  main.go             仅子命令分发
+internal/
+  contract/           策略、动作、模板、事件、快照模型
+  config/             YAML schema、默认值、校验
+  evaluator/          first-match 策略求值
+  template/           渲染、缓存、兜底页
+  generator/          合成流量
+  agentlink/          唯一 client-go 适配层 + 模型转换
+  state/              策略状态、持久化、统计
+  logging/            共享 logger
+  engine/             运行时装配、agent link、故障传输
+  control/            controller、control API、内嵌 Web UI、web/
+  dataplane/          HTTP 数据面
+  conformance/        模板一致性运行器
+  cli/                子命令参数与编排
+  version/            ldflags 版本变量
 ```
 
 ## 策略快照
 
-poller 返回全量快照。`policyState.apply`：
+poller 返回全量快照。`State.Apply`：
 
 - 原子替换策略列表和 revision；
 - 写入 `poll.persist_path`；

@@ -60,7 +60,7 @@ shield-x
 SDK poller
   │  full snapshot
   ▼
-policyState.apply
+State.Apply
   ├─ replace snapshot atomically
   ├─ persist to disk
   └─ update template cache if needed

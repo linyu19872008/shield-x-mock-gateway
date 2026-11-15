@@ -5,7 +5,7 @@ import re
 import sys
 
 ROOT = Path(__file__).resolve().parent.parent
-WEB = ROOT / "cmd/mock-gateway/web"
+WEB = ROOT / "internal/control/web"
 errors: list[str] = []
 
 def keys(path: Path) -> set[str]:

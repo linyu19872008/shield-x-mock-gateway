@@ -24,24 +24,27 @@ user-facing behavior, start with [Quick start](quickstart.md) and
 
 ```text
 cmd/mock-gateway/
-  main.go           command dispatch
-  agentlink/        only adapter to shield-x-client-go
-  config.go         YAML schema, defaults, validation
-  state.go          policy snapshot and disk persistence
-  evaluator.go      first-match policy evaluation
-  renderer.go       template rendering
-  templates.go      template cache and fallback page
-  generator.go      synthetic traffic
-  gateway.go        HTTP data plane
-  serve.go          control UI/API
-  run.go            headless generator
-  loadtest.go       load test and report
-  web/              embedded control UI
+  main.go             command dispatch only
+internal/
+  contract/           policy, action, template, event, snapshot models
+  config/             YAML schema, defaults, validation
+  evaluator/          first-match policy evaluation
+  template/           rendering, cache, fallback page
+  generator/          synthetic traffic
+  agentlink/          only adapter to shield-x-client-go + conversions
+  state/              policy state, persistence, stats
+  logging/            shared logger
+  engine/             runtime assembly, agent link, fault transport
+  control/            controller, control API, embedded web UI, web/
+  dataplane/          HTTP data plane
+  conformance/        template-conformance runner
+  cli/                command flags and orchestration
+  version/            version variable for ldflags
 ```
 
 ## Policy snapshot
 
-The poller returns a full snapshot. `policyState.apply`:
+The poller returns a full snapshot. `State.Apply`:
 
 - atomically swaps the policy list and revision;
 - persists the snapshot to `poll.persist_path`;
