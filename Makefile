@@ -1,6 +1,6 @@
 GO ?= go
 BIN ?= bin/mock-gateway
-VERSION ?= 0.1.1
+VERSION ?= 0.1.2
 LDFLAGS ?= -X github.com/linyu19872008/shield-x-mock-gateway/internal/version.Version=$(VERSION)
 
 .PHONY: help build test vet conformance i18n-check docs-check clean
