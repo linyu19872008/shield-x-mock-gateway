@@ -52,6 +52,7 @@ type ShieldXConfig struct {
 	GatewayID    string       `yaml:"gateway_id"`
 	AgentVersion string       `yaml:"agent_version"`
 	Capabilities Capabilities `yaml:"capabilities"`
+	SigningKey   string       `yaml:"signing_key"`
 }
 
 // Capabilities 是能力声明，序列化后放进 X-Shieldx-Capabilities。
@@ -61,6 +62,8 @@ type Capabilities struct {
 	BlockTemplates      bool     `yaml:"block_templates" json:"block_templates"`
 	TemplateSpecVersion int      `yaml:"template_spec_version" json:"template_spec_version"`
 	MaxRules            int      `yaml:"max_rules" json:"max_rules"`
+	DeltaSnapshot       bool     `yaml:"delta_snapshot" json:"delta_snapshot"`
+	ApplyAck            bool     `yaml:"apply_ack" json:"apply_ack"`
 }
 
 // JSON 返回紧凑 JSON（作为请求头上报）。

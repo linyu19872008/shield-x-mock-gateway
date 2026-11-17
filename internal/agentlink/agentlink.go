@@ -26,12 +26,13 @@ type Options struct {
 	GatewayID    string
 	AgentVersion string
 	Capabilities agent.Capabilities
+	SigningKey   string
 
 	PollInterval    time.Duration
 	PollTimeout     time.Duration
 	InitialRevision int64
 	FetchTemplates  bool
-	OnPolicies      func(*agent.PolicySnapshot)
+	OnPolicies      func(*agent.PolicySnapshot) error
 	OnTemplates     func(*agent.TemplateSnapshot)
 	OnError         func(error)
 
@@ -115,6 +116,7 @@ func New(opts Options) (*Link, error) {
 		GatewayID:     opts.GatewayID,
 		AgentVersion:  opts.AgentVersion,
 		Capabilities:  caps,
+		SigningKey:    opts.SigningKey,
 		Transport:     timing,
 		FetchTimeout:  opts.PollTimeout,
 		ReportTimeout: opts.ReportTimeout,
@@ -266,8 +268,21 @@ func (l *Link) onPolicies(s *agent.PolicySnapshot) {
 	l.policyCount = len(s.Policies)
 	l.mu.Unlock()
 	if l.opts.OnPolicies != nil {
-		l.opts.OnPolicies(s)
+		if err := l.opts.OnPolicies(s); err != nil {
+			_ = l.client.ReportApplyStatus(context.Background(), agent.ApplyStatusRequest{
+				AppliedRevision: s.Revision,
+				Status:          "failed",
+				ErrorCode:       "APPLY_FAILED",
+				ErrorDetail:     err.Error(),
+			})
+			return
+		}
 	}
+	_ = l.client.ReportApplyStatus(context.Background(), agent.ApplyStatusRequest{
+		AppliedRevision: s.Revision,
+		Status:          "applied",
+		PolicyCount:     len(s.Policies),
+	})
 }
 
 func (l *Link) onNotModified(revision int64) {
