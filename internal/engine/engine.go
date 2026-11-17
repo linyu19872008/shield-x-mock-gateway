@@ -66,10 +66,11 @@ func New(cfg *config.Config, st *state.Stats, log logging.Logger, dryRun bool) (
 		GatewayID:       cfg.ShieldX.GatewayID,
 		AgentVersion:    cfg.ShieldX.AgentVersion,
 		Capabilities:    agentlink.ToAgentCapabilities(cfg.ShieldX.Capabilities),
+		SigningKey:      cfg.ShieldX.SigningKey,
 		PollInterval:    cfg.Poll.Interval.D(),
 		PollTimeout:     cfg.Poll.Timeout.D(),
 		InitialRevision: initial,
-		OnPolicies: func(s *agent.PolicySnapshot) {
+		OnPolicies: func(s *agent.PolicySnapshot) error {
 			snap := agentlink.ToSnapshot(s, cfg.ShieldX.BaseURL)
 			policyState.Apply(snap)
 			state.Save(cfg, snap, log)
@@ -80,6 +81,7 @@ func New(cfg *config.Config, st *state.Stats, log logging.Logger, dryRun bool) (
 					}
 				}()
 			}
+			return nil
 		},
 		OnTemplates: func(s *agent.TemplateSnapshot) {
 			cache.Replace(agentlink.ToTemplates(s))

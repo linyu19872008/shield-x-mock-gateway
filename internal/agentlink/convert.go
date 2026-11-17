@@ -23,6 +23,8 @@ func ToAgentCapabilities(c config.Capabilities) agent.Capabilities {
 		BlockTemplates:      c.BlockTemplates,
 		TemplateSpecVersion: c.TemplateSpecVersion,
 		MaxRules:            c.MaxRules,
+		DeltaSnapshot:       c.DeltaSnapshot,
+		ApplyAck:            c.ApplyAck,
 	}
 }
 

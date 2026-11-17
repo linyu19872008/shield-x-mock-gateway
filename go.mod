@@ -9,3 +9,6 @@ require (
 
 // v0.1.0 used the pre-cmd/mock-gateway layout and produced the wrong binary name.
 retract v0.1.0
+
+// 本地联调：使用同工作区的 client-go（发布前移除或改为正式版本）。
+replace github.com/linyu19872008/shield-x-client-go => ../shield-x-client-go
