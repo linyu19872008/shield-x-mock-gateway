@@ -36,6 +36,7 @@ Do not put tokens in query strings, logs, or issue reports.
 |---|---|---|
 | `Authorization` | gateway → shield-x | bearer token |
 | `X-Shieldx-Gateway-Id` | gateway → shield-x | gateway identity |
+| `X-Shieldx-Gateway-Group` | gateway → shield-x | optional site-local group for group-targeted policies |
 | `X-Shieldx-Agent-Version` | gateway → shield-x | implementation version |
 | `X-Shieldx-Capabilities` | gateway → shield-x | compact JSON capability declaration |
 | `If-None-Match` | gateway → shield-x | ETag for policy/template polling |

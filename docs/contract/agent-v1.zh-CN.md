@@ -93,6 +93,7 @@ Authorization: Bearer sx_EXAMPLE_TOKEN
 |---|---|---|---|
 | `Authorization` | ✅ | 全部 | `Bearer <token>` |
 | `X-Shieldx-Gateway-Id` | ✅ | policies / templates | 网关标识，见 §3.1 |
+| `X-Shieldx-Gateway-Group` | 可选 | policies | 站点内集群标签（≤64 字）；策略可按集群定向 |
 | `X-Shieldx-Agent-Version` | 建议 | 全部 | 如 `gateway/1.4.2`，用于兼容判断 |
 | `X-Shieldx-Capabilities` | ✅ | policies | 能力声明，见 §8 |
 | `If-None-Match` | 建议 | policies / templates | 传上次的 `revision` 以拿 304 |
