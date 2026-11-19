@@ -6,6 +6,8 @@ shieldx:
   base_url: "http://127.0.0.1:8080/shieldx"
   token: "sx_REPLACE_ME"
   gateway_id: "gw-mock-01"
+  # 可选：站点内集群标签；策略可按集群定向
+  gateway_group: ""
   agent_version: "mock-gateway/0.1.2"
   # 可选：/gateways/v1/register 返回的 Ed25519 seed（64 hex）；设置后事件自动签名
   signing_key: ""

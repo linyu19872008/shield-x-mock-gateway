@@ -16,8 +16,9 @@ cp config.example.yaml config.yaml
 | 字段 | 类型 | 默认值 | 必填 | 说明 |
 |---|---|---|---|---|
 | `base_url` | string | `http://127.0.0.1:8080/shieldx` | 是 | shield-x 地址，包含 `/shieldx` |
-| `token` | string | 空 | 连接模式必填 | 租户 Token；不要提交 |
+| `token` | string | 空 | 连接模式必填 | 站点 Token；不要提交 |
 | `gateway_id` | string | `gw-mock-01` | 是 | 当前模拟网关唯一 ID |
+| `gateway_group` | string | 空 | 否 | 站点内集群标签，以 `X-Shieldx-Gateway-Group` 上报 |
 | `agent_version` | string | `mock-gateway/<version>` | 否 | 上报的 agent 版本 |
 | `capabilities.actions` | list | 全部四个动作 | 否 | 声明的动作能力 |
 | `capabilities.match_fields` | list | 全部支持字段 | 否 | 可求值的策略字段 |

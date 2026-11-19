@@ -13,10 +13,10 @@ agent error: shield-x: HTTP 401 INVALID_TOKEN: Token 无效
 
 Check:
 
-1. `shieldx.token` is a real tenant token, not `sx_REPLACE_ME`.
+1. `shieldx.token` is a real site token, not `sx_REPLACE_ME`.
 2. `shieldx.base_url` includes `/shieldx`.
 3. The token was not revoked or rotated.
-4. The token belongs to the tenant whose policies you expect.
+4. The token belongs to the site whose policies you expect.
 
 The mock may still serve from a persisted snapshot after a 401, but it will not
 receive updates or report events.
@@ -24,7 +24,7 @@ receive updates or report events.
 ## No policies / revision stays old
 
 - Check `/api/status` and `/api/policies` on the control console.
-- Confirm the tenant has enabled policies.
+- Confirm the site has enabled policies.
 - Confirm `capabilities.actions` and `capabilities.match_fields` include what the
   policies use; unsupported policies may be filtered out by the server.
 - Check `poll.interval`, network access, and TLS settings.
@@ -136,4 +136,4 @@ Open an issue with:
 - relevant log lines;
 - expected and actual status/headers.
 
-Never include a real tenant token, cookie, or production URL.
+Never include a real site token, cookie, or production URL.

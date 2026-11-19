@@ -45,7 +45,7 @@ The embedded control UI supports English and Simplified Chinese.
 ## Requirements
 
 - Go **1.26+** when installing from source or `go install`.
-- A reachable shield-x instance and a tenant token for `serve`, `gateway`, `run`,
+- A reachable shield-x instance and a site token for `serve`, `gateway`, `run`,
   and `loadtest`.
 - No shield-x instance is needed for `conformance`.
 
@@ -91,7 +91,7 @@ Expected: `14/14` passes and exit code `0`.
 
 ### 2. Connect to shield-x and open the control UI
 
-1. Create a tenant token and a gateway ID in your shield-x console.
+1. Create a site token and a gateway ID in your shield-x console.
 2. Copy the example configuration and edit the connection fields:
 
 ```bash
@@ -180,7 +180,7 @@ ingress:
 ```
 
 - `base_url` must include the `/shieldx` path prefix.
-- `token` is a tenant token. Do not commit it.
+- `token` is a site token. Do not commit it.
 - `gateway_id` should be unique per simulated gateway.
 - `ingress.trust_proxy` defaults to `false`; only enable it behind a trusted proxy.
 - `serve` also accepts `--config`, `--listen`, `--allow-remote`, and `--ui-token`.

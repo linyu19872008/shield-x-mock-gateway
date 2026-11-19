@@ -87,7 +87,7 @@ func Run(args []string) int {
 	}
 
 	if cfg.ShieldX.Token == "" {
-		fmt.Fprintln(os.Stderr, "缺少 Token：请在配置或 --token 中提供租户 Token")
+		fmt.Fprintln(os.Stderr, "缺少 Token：请在配置或 --token 中提供站点 Token")
 		return 1
 	}
 

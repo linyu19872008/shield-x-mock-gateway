@@ -52,7 +52,7 @@ func Gateway(args []string) int {
 		cfg.Ingress.AllowRemote = true
 	}
 	if cfg.ShieldX.Token == "" {
-		fmt.Fprintln(os.Stderr, "缺少 Token：请在配置或 --token 中提供租户 Token")
+		fmt.Fprintln(os.Stderr, "缺少 Token：请在配置或 --token 中提供站点 Token")
 		return 1
 	}
 	if err := validateListen(cfg.Ingress.Listen, cfg.Ingress.AllowRemote); err != nil {

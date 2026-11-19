@@ -98,7 +98,7 @@ func New(cfg *config.Config, st *state.Stats, log logging.Logger, dryRun bool) (
 		MaxBackoff:     cfg.Report.MaxBackoff.D(),
 		SpoolDir:       cfg.Report.SpoolDir,
 		SpoolMaxMB:     cfg.Report.SpoolMaxMB,
-		Transport:      ft,
+		Transport:      withGroupTransport(ft, cfg.ShieldX.GatewayGroup),
 	})
 	if err != nil {
 		return nil, err

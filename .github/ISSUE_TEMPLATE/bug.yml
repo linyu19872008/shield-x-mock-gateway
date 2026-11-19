@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Do not include real tenant tokens, cookies, or production data.
+        Do not include real site tokens, cookies, or production data.
   - type: input
     id: version
     attributes:

@@ -301,7 +301,7 @@
           "<dt>" + esc(tr("connection.baseUrl")) + "</dt><dd>" + esc(cfg.base_url) + "</dd>" +
           "<dt>" + esc(tr("connection.gatewayId")) + "</dt><dd>" + esc(cfg.gateway_id) + "</dd>" +
           "<dt>" + esc(tr("connection.agentVersion")) + "</dt><dd>" + esc(cfg.agent_version) + "</dd>" +
-          "<dt>" + esc(tr("connection.tenantToken")) + "</dt><dd>" + esc(tr(cfg.token_set ? "connection.tokenSet" : "connection.tokenMissing")) + "</dd>" +
+          "<dt>" + esc(tr("connection.siteToken")) + "</dt><dd>" + esc(tr(cfg.token_set ? "connection.tokenSet" : "connection.tokenMissing")) + "</dd>" +
           "<dt>" + esc(tr("connection.pollInterval")) + "</dt><dd>" + esc(cfg.poll_interval) + "</dd>" +
           "<dt>" + esc(tr("connection.reportInterval")) + "</dt><dd>" + esc(cfg.report_interval) + " · " + esc(cfg.report_format) + "</dd>" +
           "<dt>" + esc(tr("connection.spoolDir")) + "</dt><dd>" + esc(cfg.spool_dir || tr("connection.spoolDisabled")) + "</dd>" +

@@ -14,7 +14,7 @@
 |---|---|
 | Go 1.26+ | 使用 `go install` 或源码构建时 |
 | shield-x 地址 | 例如 `http://127.0.0.1:8080/shieldx` |
-| 租户 Token | 在 shield-x 控制台创建；不要提交到仓库 |
+| 站点 Token | 在 shield-x 控制台创建；不要提交到仓库 |
 | 网关 ID | 每个模拟网关唯一，例如 `gw-mock-01` |
 
 Release 二进制不需要 Go。`conformance` 不需要 shield-x。

@@ -41,7 +41,7 @@
 ## 环境要求
 
 - 从源码或 `go install` 安装时需要 Go **1.26+**。
-- `serve`、`gateway`、`run`、`loadtest` 需要可访问的 shield-x 实例和租户 Token。
+- `serve`、`gateway`、`run`、`loadtest` 需要可访问的 shield-x 实例和站点 Token。
 - `conformance` 不需要 shield-x。
 
 ## 安装
@@ -83,7 +83,7 @@ go run ./cmd/mock-gateway conformance \
 
 ### 2. 连接 shield-x 并打开控制台
 
-1. 在 shield-x 控制台创建租户 Token 和网关 ID。
+1. 在 shield-x 控制台创建站点 Token 和网关 ID。
 2. 复制示例配置并修改连接字段：
 
 ```bash
@@ -168,7 +168,7 @@ ingress:
 ```
 
 - `base_url` 必须包含 `/shieldx` 路径前缀。
-- `token` 是租户 Token，不要提交到仓库。
+- `token` 是站点 Token，不要提交到仓库。
 - `gateway_id` 每个模拟网关应唯一。
 - `ingress.trust_proxy` 默认 `false`，只有位于可信代理后才开启。
 - `serve` 还支持 `--config`、`--listen`、`--allow-remote`、`--ui-token`。

@@ -12,17 +12,17 @@ agent error: shield-x: HTTP 401 INVALID_TOKEN: Token 无效
 
 检查：
 
-1. `shieldx.token` 是真实租户 Token，不是 `sx_REPLACE_ME`；
+1. `shieldx.token` 是真实站点 Token，不是 `sx_REPLACE_ME`；
 2. `shieldx.base_url` 包含 `/shieldx`；
 3. Token 没有被撤销或轮换；
-4. Token 属于你期望的租户。
+4. Token 属于你期望的站点。
 
 401 后 mock 可能仍使用持久化快照提供服务，但不会更新策略，也不会成功上报事件。
 
 ## 没有策略 / revision 不更新
 
 - 检查控制台的 `/api/status` 和 `/api/policies`；
-- 确认租户有启用中的策略；
+- 确认站点有启用中的策略；
 - 确认 `capabilities.actions` 和 `capabilities.match_fields` 覆盖策略使用的动作/字段；
 - 检查 `poll.interval`、网络和 TLS；
 - 在控制台日志里搜索 `agent error`。

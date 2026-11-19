@@ -71,10 +71,10 @@ See ../../LICENSES/Apache-2.0.txt and ../../THIRD_PARTY_NOTICES.md.
 Authorization: Bearer sx_EXAMPLE_TOKEN
 ```
 
-- Token 是**租户级**的，一个租户下所有 gateway 共用（可配置多个 Token 用于轮替）。
+- Token 是**站点级**的，一个站点下所有 gateway 共用（可配置多个 Token 用于轮替）。
 - Token 由 shield-x 管理后台生成，**只在创建时展示一次**。
-- Token 是**明文 Bearer 凭据**，泄露相当于整个租户失守——请按你方的部署安全要求保管。
-- 认证失败返回 `401`，Token 被吊销 / 租户被禁用返回 `403`。
+- Token 是**明文 Bearer 凭据**，泄露相当于整个站点失守——请按你方的部署安全要求保管。
+- 认证失败返回 `401`，Token 被吊销 / 站点被禁用返回 `403`。
 
 ### 2.2 传输
 
@@ -93,6 +93,7 @@ Authorization: Bearer sx_EXAMPLE_TOKEN
 |---|---|---|---|
 | `Authorization` | ✅ | 全部 | `Bearer <token>` |
 | `X-Shieldx-Gateway-Id` | ✅ | policies / templates | 网关标识，见 §3.1 |
+| `X-Shieldx-Gateway-Group` | 可选 | policies | 站点内集群标签（≤64 字）；策略可按集群定向 |
 | `X-Shieldx-Agent-Version` | 建议 | 全部 | 如 `gateway/1.4.2`，用于兼容判断 |
 | `X-Shieldx-Capabilities` | ✅ | policies | 能力声明，见 §8 |
 | `If-None-Match` | 建议 | policies / templates | 传上次的 `revision` 以拿 304 |
@@ -105,11 +106,11 @@ Authorization: Bearer sx_EXAMPLE_TOKEN
 
 ### 3.1 `gateway_id`
 
-**格式：** 1~64 字符，`[A-Za-z0-9._-]`，租户内唯一。
+**格式：** 1~64 字符，`[A-Za-z0-9._-]`，站点内唯一。
 
 **来源：** 由 gateway 自行决定，建议从配置文件或主机名派生，例如 `gw-prod-sh-01`。
 
-**为什么是自报：** shield-x 用租户级 Token 认证，无法区分具体是哪台网关，因此 `gateway_id` 由上报方声明。shield-x 会**自动发现**首次出现的 `gateway_id` 并登记，管理后台可改名、禁用。
+**为什么是自报：** shield-x 用站点级 Token 认证，无法区分具体是哪台网关，因此 `gateway_id` 由上报方声明。shield-x 会**自动发现**首次出现的 `gateway_id` 并登记，管理后台可改名、禁用。
 
 **注意：** 同一个 `gateway_id` 必须稳定。频繁变化会导致数据分裂、策略作用域失效。
 
@@ -129,7 +130,7 @@ X-Shieldx-Capabilities: {"actions":["observe","block","redirect"],"match_fields"
 If-None-Match: "rev-38"
 ```
 
-无 query 参数。租户由 Token 决定，**不得**在 URL 或 body 中传租户。
+无 query 参数。站点由 Token 决定，**不得**在 URL 或 body 中传站点。
 
 ### 4.2 响应：有变更
 
@@ -196,7 +197,7 @@ ETag: "rev-40"
 }
 ```
 
-> ⚠️ **这是合法响应，不是错误。** 表示租户当前没有任何生效策略，gateway 必须**清空本地策略集**。
+> ⚠️ **这是合法响应，不是错误。** 表示站点当前没有任何生效策略，gateway 必须**清空本地策略集**。
 
 ### 4.5 六条强制语义
 
@@ -240,7 +241,7 @@ if resp.Revision != local.Revision {
 |---|---|---|
 | `400` | 请求参数非法 | **不要重试**，记录日志告警（多半是客户端 bug） |
 | `401` | Token 缺失/无效 | 告警，按退避重试（可能是配置错误） |
-| `403` | Token 已吊销 / 租户已禁用 | 告警，按退避重试，继续用旧快照 |
+| `403` | Token 已吊销 / 站点已禁用 | 告警，按退避重试，继续用旧快照 |
 | `429` | 请求过于频繁 | 读 `Retry-After` 退避 |
 | `5xx` | 服务端异常 | 指数退避重试，继续用旧快照 |
 | 超时/网络错误 | — | 指数退避重试，继续用旧快照 |
@@ -465,7 +466,7 @@ HTTP/1.1 202 Accepted
 
 ### 6.9 幂等
 
-- `event_id` 在 `(租户, gateway_id)` 范围内必须唯一。
+- `event_id` 在 `(站点, gateway_id)` 范围内必须唯一。
 - 重发（网络超时后的补发）是**正常且被允许**的，服务端会去重。
 - **不要为了"避免重复"而放弃补发**——丢数据比重复数据严重得多。
 
@@ -782,7 +783,7 @@ Cache-Control: no-store
 - [ ] **C6** 超大批次 → `413`，拆批重发成功
 - [ ] **D1** 能力不兼容的策略（如不声明 `javascript_challenge`）→ `filtered_out > 0`
 - [ ] **D2** 模板渲染结果与 `template-conformance` 测试向量**全量一致**
-- [ ] **E1** 跨租户隔离：租户 A 的 Token 拿不到租户 B 的策略
+- [ ] **E1** 跨站点隔离：站点 A 的 Token 拿不到站点 B 的策略
 
 ---
 
@@ -801,7 +802,7 @@ Cache-Control: no-store
 
 | 事项 | 说明 |
 |---|---|
-| shield-x 测试环境 | 提供固定 Token + 独立租户 |
+| shield-x 测试环境 | 提供固定 Token + 独立站点 |
 | mock gateway | shield-x 仓库提供，可参考其实现（它是最小合法客户端） |
 | 测试向量 | `testdata/template-conformance/cases.json`（14 条）+ `README.md`（schema 与运行说明） |
 | 问题反馈 | 附上 `X-Shieldx-Request-Id` 或 `event_id`，便于定位 |
