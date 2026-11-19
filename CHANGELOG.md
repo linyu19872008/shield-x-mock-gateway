@@ -7,6 +7,10 @@ This project uses [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+
+- Terminology: tenant → site across config, console copy and docs. Wire protocol is unchanged.
+
 ## [0.1.2] - 2026-11-15
 
 ### Changed

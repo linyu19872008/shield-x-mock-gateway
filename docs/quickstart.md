@@ -14,7 +14,7 @@ This guide covers three independent paths:
 |---|---|
 | Go 1.26+ | for `go install` or source builds |
 | shield-x URL | something like `http://127.0.0.1:8080/shieldx` |
-| tenant token | created in the shield-x console; never commit it |
+| site token | created in the shield-x console; never commit it |
 | gateway ID | unique per simulated gateway, for example `gw-mock-01` |
 
 Release binaries do not require Go. `conformance` does not require shield-x.

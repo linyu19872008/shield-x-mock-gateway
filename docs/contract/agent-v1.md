@@ -22,10 +22,10 @@ mock-gateway implements the gateway side and a testing data plane.
 
 ## 2. Authentication
 
-All agent requests use a tenant token:
+All agent requests use a site token:
 
 ```http
-Authorization: Bearer <tenant-token>
+Authorization: Bearer <site-token>
 ```
 
 Do not put tokens in query strings, logs, or issue reports.
