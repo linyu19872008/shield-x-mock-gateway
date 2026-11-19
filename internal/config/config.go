@@ -50,6 +50,7 @@ type ShieldXConfig struct {
 	BaseURL      string       `yaml:"base_url"`
 	Token        string       `yaml:"token"`
 	GatewayID    string       `yaml:"gateway_id"`
+	GatewayGroup string       `yaml:"gateway_group"`
 	AgentVersion string       `yaml:"agent_version"`
 	Capabilities Capabilities `yaml:"capabilities"`
 	SigningKey   string       `yaml:"signing_key"`

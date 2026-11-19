@@ -18,6 +18,7 @@ Durations use Go syntax: `500ms`, `5s`, `2m`, `1h`.
 | `base_url` | string | `http://127.0.0.1:8080/shieldx` | yes | shield-x base URL, including `/shieldx` |
 | `token` | string | empty | yes for connected modes | site token; do not commit it |
 | `gateway_id` | string | `gw-mock-01` | yes | unique ID for this simulated gateway |
+| `gateway_group` | string | empty | no | optional site-local group sent as `X-Shieldx-Gateway-Group` |
 | `agent_version` | string | `mock-gateway/<version>` | no | reported agent version |
 | `capabilities.actions` | list | all four actions | no | actions this mock claims to support |
 | `capabilities.match_fields` | list | all supported fields | no | policy fields this mock can evaluate |
